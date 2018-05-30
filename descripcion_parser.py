@@ -16,8 +16,6 @@ def strip_html_tags(html):
     s.feed(html)
     return s.get_data()
 
-'Solicitamos para importante cadena de farmacias de la Zona Oeste, ENFERMERAS con experiencia, para atención en Vacunatorio. Requisitos Sexo femenino, de 23 a 45 años. Resida z/Oeste (excluyente) Experiencia mínima de 3 años (preferentemente en vacunatorios) Poseer título y matrícula habilitante Disponibilidad horaria'
-
 def foldear_simbolos(cadena):
     ''' 
     Elimina los acentos de una cadena en minúsculas. 
@@ -26,7 +24,7 @@ def foldear_simbolos(cadena):
     acentos = {'á':'a', 'é':'e', 'í':'i', 'ó':'o', 'ú':'u', 'ü':'u'}
     cadena = list(cadena)
     for i in range(len(cadena)):
-        if not cadena[i].isalnum():
+        if not cadena[i].isalfa():
             cadena[i] = ' '
         else:
             cadena[i] = acentos.get(cadena[i], cadena[i])
@@ -42,7 +40,7 @@ def es_palabra_inutil(palabra):
         'les', 'que', 'para', 'las', 'como', 'donde', 'a', 'y', 
         'o', 'por', 'pero', 'sobre', 'sin', 'en', 'con', 'tras',
         'contra', 'queres', 'trabajo', 'se', 'de', 'requisito', 'requisitos',
-        'plata'])
+        'plata', 'del', 'un', 'al', 'una'])
 
 def parse(descripcion):
     '''
@@ -55,7 +53,7 @@ def parse(descripcion):
         if es_palabra_inutil(palabra):
             continue
             
-        resultado.append(foldear_simbolos(palabra))
+        resultado.extend(foldear_simbolos(palabra).split())
     
     return ' '.join(resultado)
     

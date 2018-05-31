@@ -24,7 +24,7 @@ def foldear_simbolos(cadena):
     acentos = {'á':'a', 'é':'e', 'í':'i', 'ó':'o', 'ú':'u', 'ü':'u'}
     cadena = list(cadena)
     for i in range(len(cadena)):
-        if not cadena[i].isalfa():
+        if not cadena[i].isalpha():
             cadena[i] = ' '
         else:
             cadena[i] = acentos.get(cadena[i], cadena[i])

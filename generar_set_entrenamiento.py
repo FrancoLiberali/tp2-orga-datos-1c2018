@@ -1,6 +1,4 @@
 import csv
-import pandas as pd
-import numpy as np
 
 RUTA_BASE = '/home/luciano/orga-datos/datos_preprocesados/'
 RUTA_POSTULANTES    = RUTA_BASE + 'postulantes.csv'

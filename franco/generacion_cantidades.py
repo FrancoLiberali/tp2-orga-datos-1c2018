@@ -57,5 +57,6 @@ def generar_cantidades(ruta, nombre):
     ruta_salida = '../../datos_procesados/' + nombre
     entrenamiento.to_csv(ruta_salida, index=False)
     
-generar_cantidades('../../test_final_100k.csv','to_kaggle.csv')
-generar_cantidades('../../tmp/set_entrenamiento.csv','entrenamiento.csv')
+#generar_cantidades('../../test_final_100k.csv','to_kaggle.csv')
+#generar_cantidades('../../tmp/set_entrenamiento.csv','entrenamiento.csv')
+generar_cantidades('../../tmp/set_no_postulados.csv','no_postulados.csv')

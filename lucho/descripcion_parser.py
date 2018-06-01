@@ -1,4 +1,15 @@
+from stop_words import ESP_STOP_WORDS as BASE_STOP_WORDS, ENG_STOP_WORDS
 from html.parser import HTMLParser
+
+STOP_WORDS = set([
+    'experiencia', 'empresa', 'busqueda', 'años', 'requisitos', 'excluyente', 'tareas',
+ 'importante', 'zona', 'manejo', 'equipo', 'cliente', 'clientes', 'conocimientos', 'disponibilidad',
+ 'laboral', 'area', 'lunes', 'gestion', 'desarrollo', 'viernes', 'principales', 'personal', 'contratacion',
+ 'hs', 'empresas', 'servicios', 'adecco', 'horario', 'condiciones', 'capacidad', 'time', 'responsabilidades',
+ 'contar', 'control', 'excelente', 'edad', 'productos', 'atencion', 'nivel', 'seguimiento',
+ 'puesto', 'posicion', 'orientacion', 'analisis', 'persona', 'cv', 'office', 'calidad', 'avanzado',
+ 'preferentemente'
+]).union(BASE_STOP_WORDS.union(ENG_STOP_WORDS))
 
 class MLStripper(HTMLParser):
     def __init__(self):
@@ -16,7 +27,6 @@ def strip_html_tags(html):
     s.feed(html)
     return s.get_data()
 
-'Solicitamos para importante cadena de farmacias de la Zona Oeste, ENFERMERAS con experiencia, para atención en Vacunatorio. Requisitos Sexo femenino, de 23 a 45 años. Resida z/Oeste (excluyente) Experiencia mínima de 3 años (preferentemente en vacunatorios) Poseer título y matrícula habilitante Disponibilidad horaria'
 
 def foldear_acentos(cadena):
     ''' 
@@ -24,18 +34,20 @@ def foldear_acentos(cadena):
     Ej: descripción -> descripcion
     '''
     acentos = {'á':'a', 'é':'e', 'í':'i', 'ó':'o', 'ú':'u', 'ü':'u'}
-    cadena = list(cadena)
-    for i in range(len(cadena)):
-        cadena[i] = acentos.get(cadena[i], cadena[i])
-    
-    return ''.join(cadena)
+    return ''.join([ acentos.get(c, c) for c in cadena ])
+
+def foldear_simbolos(cadena):
+    '''
+    Convierte todos los caracteres que no sean alfanuméricos
+    '''
+    return ''.join([ c if c.isalnum() else ' ' for c in cadena ])
 
 def es_palabra_inutil(palabra):
     '''
     Devuelve True si palabra es una palabra que no aporta
     contenido.
     '''
-    return False 
+    return palabra in STOP_WORDS
 
 def parse(descripcion):
     '''
@@ -44,11 +56,11 @@ def parse(descripcion):
     '''
     resultado = []
     
-    for palabra in strip_html_tags(descripcion).lower().split():
+    for palabra in foldear_simbolos(foldear_acentos(strip_html_tags(descripcion).lower())).split():
         if es_palabra_inutil(palabra):
             continue
-            
-        resultado.append(foldear_acentos(palabra))
+        
+        resultado.append(palabra)
     
     return ' '.join(resultado)
     

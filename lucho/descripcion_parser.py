@@ -38,9 +38,9 @@ def foldear_acentos(cadena):
 
 def foldear_simbolos(cadena):
     '''
-    Convierte todos los caracteres que no sean alfanuméricos
+    Convierte todos los caracteres que no sean alfabéticos
     '''
-    return ''.join([ c if c.isalnum() else ' ' for c in cadena ])
+    return ''.join([ c if c.isalpha() else ' ' for c in cadena ])
 
 def es_palabra_inutil(palabra):
     '''

@@ -47,8 +47,9 @@ def vectorizar_postulantes():
     postulantes = pd.read_csv(RUTA_ENTRADA)
     
     # Potencial problema: Los que no tienen edad tiran el promedio para abajo
+    # Potencial solución: Asignarles la media
     
-    postulantes['edad'] = postulantes['fechanacimiento'].map(lambda x: 2018 - int(x.split('-')[0]) if isinstance(x, str) else 0)
+    postulantes['edad'] = postulantes['fechanacimiento'].map(lambda x: 2018 - int(x.split('-')[0]) if isinstance(x, str) else 30)
     postulantes = postulantes[postulantes['edad'] <= EDAD_MAX]
     postulantes = postulantes.drop(axis=1, labels=['fechanacimiento'])    
     
@@ -60,3 +61,5 @@ def vectorizar_postulantes():
     postulantes['nivel_educativo'] = np.max(postulantes[['Universitario', 'Secundario', 'Terciario/Técnico', 'Posgrado', 'Master', 'Doctorado']], axis=1)
     postulantes = postulantes.drop(axis=1, labels=['Universitario', 'Secundario', 'Terciario/Técnico', 'Posgrado', 'Master', 'Doctorado', 'Otro'])
     postulantes.to_csv(RUTA_SALIDA, index = False)
+
+    

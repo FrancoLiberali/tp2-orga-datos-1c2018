@@ -1,9 +1,12 @@
 #!/usr/bin/python3
 
+print('Cargando datos...', end='')
 import avisos
 import postulantes
 import vistas
 import postulaciones
+print('OK')
+
 
 class Featurizer:
     '''
@@ -140,3 +143,49 @@ class CantidadVistasPostulacionesPostulante(Featurizer):
     def get_columns(self):
         return [ 'cantidad_vistas', 'cantidad_postulaciones' ]
 
+class CantidadPVEnFeaturesDelAnuncio(Featurizer):
+    '''
+    Genera features que refieren a la cantidad de vistas y postulaciones en el 
+    área, zona y tipo de trabajo del anuncio.
+    - cant_vistas_{feature}: Cantidad de vistas en las que coincide con {feature} del anuncio
+    - cant_postulaciones_{feature}: Cantidad de postulaciones en las que coincide con {feature} del anuncio
+    '''
+
+    PREFIJO_VISTAS = 'cant_vistas_'
+    PREFIJO_POSTULACIONES = 'cant_postulaciones_'
+    FEATURES = ('nombre_area', 'nombre_zona', 'tipo_de_trabajo', 'denominacion_empresa')
+
+    def calcular_cantidades(self, aviso_actual, otros_avisos):
+        '''
+        Calcula la cantidad de postulaciones en avisos que coincidan en
+        los features indicados por la constante .FEATURES
+        Devuelve un diccionario {feature: cantidad}
+        '''
+        cantidades = {}
+        for id_aviso in otros_avisos:
+            if id_aviso == aviso_actual['idaviso']:
+                continue
+            for feature in self.FEATURES:
+                if avisos.get(id_aviso)[feature] == aviso_actual[feature]:
+                    cantidades[feature] = cantidades.get(feature, 0) + 1
+        return cantidades
+    
+    def featurize(self, id_aviso, id_postulante):
+        aviso = avisos.get(id_aviso)
+        cantidades_vistas = self.calcular_cantidades(aviso, vistas.get(id_postulante))
+        cantidades_postus = self.calcular_cantidades(aviso, postulaciones.get(id_postulante))
+
+        features = []
+
+        for feature in self.FEATURES:
+            features.append(cantidades_postus[feature])
+            features.append(cantidades_vistas[feature])
+
+        return features
+
+    def get_columns(self):
+        columnas = []
+        for feature in self.FEATURES:
+            for prefijo in (self.PREFIJO_POSTULACIONES, self.PREFIJO_VISTAS):
+                columnas.append(prefijo + feature)
+        return columnas

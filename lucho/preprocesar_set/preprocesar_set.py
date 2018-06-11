@@ -13,6 +13,7 @@ import featurizer
 FEATURIZERS = (
     featurizer.InformacionBasicaPostulante(),
     featurizer.CantidadVistasPostulacionesPostulante(),
+    featurizer.CantidadPVEnFeaturesDelAnuncio(),
 )
 
 COLUMNAS_CARACTERISTICAS = sum([f.get_columns() for f in FEATURIZERS], [])

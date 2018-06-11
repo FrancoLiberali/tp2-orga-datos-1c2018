@@ -1,6 +1,9 @@
 # rutas.py
 rutas.py
 
+# VS Code
+.vscode/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-print('Cargando datos...', end='')
+print('Cargando datos...')
 import avisos
 import postulantes
 import vistas

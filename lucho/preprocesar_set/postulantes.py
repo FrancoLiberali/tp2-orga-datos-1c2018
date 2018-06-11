@@ -7,7 +7,6 @@ import csv
 
 from rutas import RUTA_POSTULANTES_DETALLE
 
-postulantes = cargar_postulantes()
 
 def cargar_postulantes():
     '''
@@ -29,3 +28,5 @@ def get(id_postulante):
     '''
     
     return postulantes[id_postulante]
+
+postulantes = cargar_postulantes()

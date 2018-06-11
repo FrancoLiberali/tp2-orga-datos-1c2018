@@ -7,7 +7,6 @@ import csv
 
 from rutas import RUTA_VISTAS
 
-vistas = cargar_vistas()
 
 def cargar_vistas():
     '''
@@ -31,7 +30,11 @@ def cargar_vistas():
 def get(id_postulante):
     '''
     Devuelve las vistas de un postulante según su ID.
-    Si el postulante no existe lanza KeyError.
+    Si el postulante no existe devuelve un diccionario vacío.
     '''
-    
+
+    if not id_postulante in vistas:
+        return {}
     return vistas[id_postulante]
+
+vistas = cargar_vistas()

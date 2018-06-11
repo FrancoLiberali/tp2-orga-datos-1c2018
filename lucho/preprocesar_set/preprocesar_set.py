@@ -40,7 +40,7 @@ def preprocesar_set(ruta_entrada, ruta_salida, cantidad_lineas = 0):
         ID_POSTULANTE = encabezado.index('idpostulante')
         ID_AVISO      = encabezado.index('idaviso')
 
-        escritor.write(encabezado + COLUMNAS_CARACTERISTICAS)
+        escritor.writerow(encabezado + COLUMNAS_CARACTERISTICAS)
 
         for fila in lector:
             id_aviso, id_postulante = fila[ID_AVISO], fila[ID_POSTULANTE]
@@ -51,7 +51,7 @@ def preprocesar_set(ruta_entrada, ruta_salida, cantidad_lineas = 0):
             if cantidad_lineas != 0:
                 porcentaje = linea_actual * 10000 // cantidad_lineas
                 if porcentaje != porcentaje_anterior:
-                    print('%.2f' % porcentaje / 100)
+                    print('%%.2f' % (porcentaje / 100))
                     porcentaje_anterior = porcentaje
 
 def convertir_par_a_caracteristicas(id_aviso, id_postulante, featurizers):

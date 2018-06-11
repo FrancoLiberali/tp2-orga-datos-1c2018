@@ -7,7 +7,6 @@ import csv
 
 from rutas import RUTA_POSTULACIONES
 
-postulaciones = cargar_postulaciones()
 
 def cargar_postulaciones():
     '''
@@ -30,7 +29,11 @@ def cargar_postulaciones():
 def get(id_postulante):
     '''
     Devuelve las postulaciones de un postulante según su ID.
-    Si el postulante no existe lanza KeyError.
+    Si el postulante no existe devuelve un set vacío.
     '''
-    
+
+    if not id_postulante in postulaciones:
+        return set()
     return postulaciones[id_postulante]
+
+postulaciones = cargar_postulaciones()

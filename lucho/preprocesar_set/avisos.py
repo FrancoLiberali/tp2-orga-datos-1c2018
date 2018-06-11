@@ -8,8 +8,6 @@ import csv
 from rutas import RUTA_AVISOS_DETALLE
 
 
-avisos = cargar_avisos()
-
 def cargar_avisos():
     '''
     Carga el archivo CSV de avisos.
@@ -31,3 +29,6 @@ def get(id_aviso):
     '''
     
     return avisos[id_aviso]
+
+avisos = cargar_avisos()
+

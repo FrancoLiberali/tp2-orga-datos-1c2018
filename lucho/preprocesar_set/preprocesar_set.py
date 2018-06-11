@@ -28,6 +28,9 @@ def preprocesar_set(ruta_entrada, ruta_salida, cantidad_lineas = 0):
     indicará el progreso del preprocesamiento.
     '''
 
+    linea_actual = 0
+    porcentaje_anterior = 0
+
     with open(ruta_entrada) as entrada, open(ruta_salida, 'w') as salida:
         lector = csv.reader(entrada)
         escritor = csv.writer(salida)
@@ -44,6 +47,12 @@ def preprocesar_set(ruta_entrada, ruta_salida, cantidad_lineas = 0):
             caracteristicas = convertir_par_a_caracteristicas(id_aviso, id_postulante, FEATURIZERS)
 
             escritor.writerow(fila + caracteristicas)
+            linea_actual += 1
+            if cantidad_lineas != 0:
+                porcentaje = linea_actual * 10000 // cantidad_lineas
+                if porcentaje != porcentaje_anterior:
+                    print('%.2f' % porcentaje / 100)
+                    porcentaje_anterior = porcentaje
 
 def convertir_par_a_caracteristicas(id_aviso, id_postulante, featurizers):
     '''

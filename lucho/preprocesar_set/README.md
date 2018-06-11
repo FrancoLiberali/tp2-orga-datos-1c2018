@@ -1,7 +1,7 @@
 ## Preprocesador de set de entrenamiento/test/predicción
 
 Este programa es un intento de normalizar la forma en que convertimos un set de test/entrenamiento/predicción
-en algo admisible para un algoritmo de machine learning. 
+en algo admisible para un algoritmo de machine learning. El objetivo del mismo es tomar un archivo CSV que tenga entre sus columnas `idaviso` e `idpostulante` y generar los features que correspondan de una forma sencilla y fácilmente modificable.
 
 La base del programa es el archivo `featurizer.py`, que es donde se encuentran los diferentes creadores de features. Esta armado de una forma lo suficientemente general como para que agregar un feature no sea más que agregar el código que lo genere y simplemente se agregue la columna en el archivo final sin tener que recrear todo o recurrir a pandas.
 
@@ -19,6 +19,8 @@ Donde:
 - `ruta_entrada` es la ruta al archivo CSV que contiene los pares idaviso, idpostulante.
 - `ruta_salida` es la ruta al archivo CSV de salida con los features generados.
 - `cantidad_lineas_entrada` es un parámetro opcional que indica cuántas líneas hay en el archivo de entrada. No se determina directamente desde el archivo de entrada para ahorrar tiempo si el archivo es muy grande. Se puede utilizar la salida de `cat ruta_entrada | wc -l` (Linux).
+
+El archivo de entrada *debe* tener una columna `idaviso` y una columna `idpostulante`. El resto de las columnas serán ignoradas durante el procesamiento pero no serán eliminadas; se agregarán al archivo final en el mismo orden en que estaban en el archivo original.
 
 Este programa requiere que exista en la carpeta un archivo `rutas.py` con las siguientes constantes definidas:
 - `RUTA_AVISOS_DETALLE`: La ruta al archivo `fiuba_6_avisos_detalle.csv`.

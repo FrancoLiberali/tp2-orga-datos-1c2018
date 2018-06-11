@@ -20,3 +20,8 @@ Donde:
 - `ruta_salida` es la ruta al archivo CSV de salida con los features generados.
 - `cantidad_lineas_entrada` es un parámetro opcional que indica cuántas líneas hay en el archivo de entrada. No se determina directamente desde el archivo de entrada para ahorrar tiempo si el archivo es muy grande. Se puede utilizar la salida de `cat ruta_entrada | wc -l` (Linux).
 
+Este programa requiere que exista en la carpeta un archivo `rutas.py` con las siguientes constantes definidas:
+- `RUTA_AVISOS_DETALLE`: La ruta al archivo `fiuba_6_avisos_detalle.csv`.
+- `RUTA_POSTULANTES_DETALLE`: La ruta al archivo `postulantes.csv`, generado por un notebook dentro de la carpeta `viejo-paradigma`.
+- `RUTA_POSTULACIONES`: La ruta al archivo `fiuba_4_postulaciones.csv`.
+- `RUTA_VISTAS`: La ruta al archivo `fiuba_3_vistas.csv`

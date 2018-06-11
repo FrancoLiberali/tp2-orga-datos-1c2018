@@ -44,7 +44,7 @@ class FeaturesDescripciones(featurizer.Featurizer):
 
         stemmer = Stemmer.Stemmer('spanish')
 
-        for aviso in avisos.avisos:
+        for aviso in avisos.avisos.values():
             descripcion = procesar_descripcion(aviso['descripcion'], stemmer)
             
             for palabra in descripcion:

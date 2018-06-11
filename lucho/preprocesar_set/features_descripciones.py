@@ -54,7 +54,15 @@ class FeaturesDescripciones(featurizer.Featurizer):
         
         for id_aviso, descripcion in self.descripciones_procesadas.items():
             self.descripciones_procesadas[id_aviso] = \
-                ' '.join([ w for w in descripcion if self.lexico[w] >= self.factor ])
+                [ w for w in descripcion if self.lexico[w] >= self.factor ]
+        
+        self.lexico = {}
+        for id_aviso, descripcion in self.descripciones_procesadas.items():
+            for palabra in descripcion:
+                self.lexico[palabra] = self.lexico.get(palabra, 0)
+            
+            self.descripciones_procesadas[id_aviso] = ' '.join(descripcion)
+            
         
     
 

@@ -9,11 +9,13 @@ import csv
 import sys
 
 import featurizer
+import features_descripciones
 
 FEATURIZERS = (
     featurizer.InformacionBasicaPostulante(),
     featurizer.CantidadVistasPostulacionesPostulante(),
     featurizer.CantidadPVEnFeaturesDelAnuncio(),
+    features_descripciones.FeaturesDescripciones(),
 )
 
 COLUMNAS_CARACTERISTICAS = sum([f.get_columns() for f in FEATURIZERS], [])

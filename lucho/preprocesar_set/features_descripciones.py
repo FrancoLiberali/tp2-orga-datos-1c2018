@@ -10,6 +10,7 @@ import featurizer
 import avisos
 import vistas
 import postulaciones
+import postulantes
 
 from descripciones import procesar_descripcion
 
@@ -29,11 +30,10 @@ class FeaturesDescripciones(featurizer.Featurizer):
     distancia_descripciones se define de la siguiente forma:
     - Distancia de jaccard entre las descripciones, reducido en palabras.
 
-    NOTA: Este módulo puede tomar un tiempo en inicializarse ya que debe determinar las 500
-    palabras más importantes.
+    NOTA: Este módulo puede tomar un tiempo en inicializarse ya que debe preprocesar las descripciones
     '''
 
-    def __init__(self, cantidad_palabras_importantes = 500, porcentaje = 0.01):
+    def __init__(self, porcentaje = 0.01):
         '''
         '''
         self.palabras_importantes = set()
@@ -61,9 +61,55 @@ class FeaturesDescripciones(featurizer.Featurizer):
             for palabra in descripcion:
                 self.lexico[palabra] = self.lexico.get(palabra, 0) + 1
             
-            self.descripciones_procesadas[id_aviso] = ' '.join(descripcion)
+            self.descripciones_procesadas[id_aviso] = descripcion
+    
+    def generar_data_postulante(self, id_postulante):
+        '''
+        Devuelve un diccionario con las palabras que más vio el usuario
+        y sus frecuencias.
+        '''
+        frecuencias_postulante = {}
+        for id_aviso_visto in vistas.get(id_postulante):
+            if id_aviso_visto not in self.descripciones_procesadas:
+                continue
             
+            for palabra in self.descripciones_procesadas[id_aviso_visto]:
+                frecuencias_postulante[palabra] = frecuencias_postulante.get(palabra, 0) + 1
         
+        for id_aviso_postu in postulaciones.get(id_postulante):
+            if id_aviso_postu not in self.descripciones_procesadas:
+                continue
+            
+            for palabra in self.descripciones_procesadas[id_aviso_postu]:
+                frecuencias_postulante[palabra] = frecuencias_postulante.get(palabra, 0) + 1
+        
+        return frecuencias_postulante
+        
+
+
+    def featurize(self, id_aviso, id_postulante):
+        postulante = postulantes.get(id_postulante)
+        
+        if id_aviso not in self.descripciones_procesadas:
+            return [ 0 ]
+        
+        descripcion = self.descripciones_procesadas
+
+        if 'descripciones_data' not in postulante:
+            postulante['descripciones_data'] = self.generar_data_postulante(id_postulante)
+        
+        descripcion_postulante = postulante['descripciones_data']
+        score_descripcion = 0
+        
+        for palabra in descripcion_postulante:
+            if palabra in descripcion:
+                score_descripcion += descripcion[palabra] * descripcion_postulante[palabra]
+        
+        return [ score_descripcion ]
+
+    
+    def get_columns(self):
+        return [ 'score_descripcion' ]
     
 
     

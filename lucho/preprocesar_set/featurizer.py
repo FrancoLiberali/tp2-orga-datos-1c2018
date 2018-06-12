@@ -161,7 +161,7 @@ class CantidadPVEnFeaturesDelAnuncio(Featurizer):
         los features indicados por la constante .FEATURES
         Devuelve un diccionario {feature: cantidad}
         '''
-        cantidades = {}
+        cantidades = {k:0 for k in self.FEATURES}
         for id_aviso in otros_avisos:
             if id_aviso == aviso_actual['idaviso'] or id_aviso not in avisos.avisos:
                 continue

@@ -54,7 +54,7 @@ def preprocesar_set(ruta_entrada, ruta_salida, cantidad_lineas = 0):
             if cantidad_lineas != 0:
                 porcentaje = linea_actual * 10000 // cantidad_lineas
                 if porcentaje != porcentaje_anterior:
-                    print('%%.2f' % (porcentaje / 100))
+                    print('%% %.2f' % (porcentaje / 100))
                     porcentaje_anterior = porcentaje
 
 def convertir_par_a_caracteristicas(id_aviso, id_postulante, featurizers):

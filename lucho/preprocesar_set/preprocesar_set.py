@@ -72,7 +72,7 @@ def convertir_par_a_caracteristicas(id_aviso, id_postulante, featurizers, pool):
     '''
     #caracteristicas = []
 
-    caracteristicas = pool.map(lambda f: f(id_aviso, id_postulante), featurizers)
+    caracteristicas = pool.map(lambda f: f.featurize(id_aviso, id_postulante), featurizers)
 
     #for f in featurizers:
     #    caracteristicas += f.featurize(id_aviso, id_postulante)

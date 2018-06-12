@@ -7,7 +7,6 @@ para poder predecir mediante algoritmos de machine learning.
 
 import csv
 import sys
-from multiprocessing import Pool as ThreadPool
 
 import featurizer
 import features_descripciones
@@ -32,8 +31,6 @@ def preprocesar_set(ruta_entrada, ruta_salida, cantidad_lineas = 0):
     indicará el progreso del preprocesamiento.
     '''
 
-    thread_pool = ThreadPool()
-
     linea_actual = 0
     porcentaje_anterior = 0
 
@@ -50,7 +47,7 @@ def preprocesar_set(ruta_entrada, ruta_salida, cantidad_lineas = 0):
 
         for fila in lector:
             id_aviso, id_postulante = fila[ID_AVISO], fila[ID_POSTULANTE]
-            caracteristicas = convertir_par_a_caracteristicas(id_aviso, id_postulante, FEATURIZERS, thread_pool)
+            caracteristicas = convertir_par_a_caracteristicas(id_aviso, id_postulante, FEATURIZERS)
 
             escritor.writerow(fila + caracteristicas)
             linea_actual += 1
@@ -60,9 +57,9 @@ def preprocesar_set(ruta_entrada, ruta_salida, cantidad_lineas = 0):
                     print('{} %'.format(porcentaje))
                     porcentaje_anterior = porcentaje
 
-def convertir_par_a_caracteristicas(id_aviso, id_postulante, featurizers, pool):
+def convertir_par_a_caracteristicas(id_aviso, id_postulante, featurizers):
     '''
-    Realiza la conversión de un par aviso-postulante a un vector de 
+    Realiza la conversión de un par aviso-postulante a un vector de
     características. Cada característica está generada por un featurizer.
     Un featurizer es una objeto de la clase Featurizer que implementa el método
     featurize [ver featurize.py].
@@ -70,15 +67,15 @@ def convertir_par_a_caracteristicas(id_aviso, id_postulante, featurizers, pool):
     Esta función devuelve una lista con todas las características numéricas
     generadas por los featurizers.
     '''
-    #caracteristicas = []
+    caracteristicas = []
 
-    caracteristicas = pool.map(lambda f: f.featurize(id_aviso, id_postulante), featurizers)
+    iterable = [ (id_aviso, id_postulante, featurizer) for featurizer in featurizers ]
 
-    #for f in featurizers:
-    #    caracteristicas += f.featurize(id_aviso, id_postulante)
+    for f in featurizers:
+        caracteristicas += f.featurize(id_aviso, id_postulante)
 
-    return sum(caracteristicas, [])
-            
+    return caracteristicas
+
 
 def main():
     '''

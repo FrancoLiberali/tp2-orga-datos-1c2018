@@ -163,8 +163,9 @@ class CantidadPVEnFeaturesDelAnuncio(Featurizer):
         '''
         cantidades = {}
         for id_aviso in otros_avisos:
-            if id_aviso == aviso_actual['idaviso']:
+            if id_aviso == aviso_actual['idaviso'] or id_aviso not in avisos.avisos:
                 continue
+            
             for feature in self.FEATURES:
                 if avisos.get(id_aviso)[feature] == aviso_actual[feature]:
                     cantidades[feature] = cantidades.get(feature, 0) + 1

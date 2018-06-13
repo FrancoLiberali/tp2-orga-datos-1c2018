@@ -15,6 +15,7 @@ import pandas as pd
 class CantidadesPV:
     
     def featurize(self, df):
+        print('Featurizing cantidades de postulaciones y vistas...')
         df = pd.merge(df, \
             vistas.df.groupby('idpostulante').agg('count').rename(columns={'idaviso': 'cantidad_vistas'}), \
             on='idpostulante', how='left')

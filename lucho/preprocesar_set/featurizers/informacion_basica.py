@@ -110,6 +110,7 @@ class InformacionBasica:
         
 
     def featurize(self, df):
+        print('Featurizing información básica')
         return pd.merge(df, self.df_info, how='left', on='idpostulante')
 
 

@@ -10,15 +10,20 @@ import sys
 
 from featurizers.informacion_basica import InformacionBasica
 from featurizers.cantidad_pv import CantidadesPV
+from featurizers.cantidades_por_feature import CantidadesPorFeature
+from featurizers.descripciones.descripciones import Descripciones
 
 import pandas as pd
+import numpy as np
 
 FEATURIZERS = (
     InformacionBasica(),
     CantidadesPV(),
+    CantidadesPorFeature(),
+    Descripciones()
 )
 
-def preprocesar_set(ruta_entrada, ruta_salida, cantidad_lineas = 0):
+def preprocesar_set(ruta_entrada, ruta_salida, cantidad_lineas = 0, cacho=10000):
     '''
     Preprocesa un set de entrenamiento/test/predicción en formato CSV.
     Se requiere que el mismo tenga una columna idaviso y una columna
@@ -29,55 +34,14 @@ def preprocesar_set(ruta_entrada, ruta_salida, cantidad_lineas = 0):
     indicará el progreso del preprocesamiento.
     '''
 
+    
     df = pd.read_csv(ruta_entrada)
 
-    for featurizer in FEATURIZERS:
+    for i, featurizer in enumerate(FEATURIZERS):
+        print('Featurizer', i)
         df = featurizer.featurize(df)
     
     df.to_csv(ruta_salida, index=False)
-
-def old_style():
-    linea_actual = 0
-    porcentaje_anterior = 0
-    with open(ruta_entrada) as entrada, open(ruta_salida, 'w') as salida:
-        lector = csv.reader(entrada)
-        escritor = csv.writer(salida)
-        
-        encabezado = next(lector)
-        
-        ID_POSTULANTE = encabezado.index('idpostulante')
-        ID_AVISO      = encabezado.index('idaviso')
-
-        escritor.writerow(encabezado + COLUMNAS_CARACTERISTICAS)
-
-        for fila in lector:
-            id_aviso, id_postulante = int(fila[ID_AVISO]), fila[ID_POSTULANTE]
-            caracteristicas = convertir_par_a_caracteristicas(id_aviso, id_postulante, FEATURIZERS)
-
-            escritor.writerow(fila + caracteristicas)
-            linea_actual += 1
-            if cantidad_lineas != 0:
-                porcentaje = linea_actual * 100 // cantidad_lineas
-                if porcentaje != porcentaje_anterior:
-                    print('{} %'.format(porcentaje))
-                    porcentaje_anterior = porcentaje
-
-def convertir_par_a_caracteristicas(id_aviso, id_postulante, featurizers):
-    '''
-    Realiza la conversión de un par aviso-postulante a un vector de
-    características. Cada característica está generada por un featurizer.
-    Un featurizer es una objeto de la clase Featurizer que implementa el método
-    featurize [ver featurize.py].
-
-    Esta función devuelve una lista con todas las características numéricas
-    generadas por los featurizers.
-    '''
-    caracteristicas = []
-
-    for f in featurizers:
-        caracteristicas += f.featurize(id_aviso, id_postulante)
-
-    return caracteristicas
 
 
 def main():

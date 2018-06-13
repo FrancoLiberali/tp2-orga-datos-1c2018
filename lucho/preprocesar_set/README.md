@@ -3,13 +3,15 @@
 Este programa es un intento de normalizar la forma en que convertimos un set de test/entrenamiento/predicción
 en algo admisible para un algoritmo de machine learning. El objetivo del mismo es tomar un archivo CSV que tenga entre sus columnas `idaviso` e `idpostulante` y generar los features que correspondan de una forma sencilla y fácilmente modificable.
 
-La base del programa es el archivo `featurizer.py`, que es donde se encuentran los diferentes creadores de features. Esta armado de una forma lo suficientemente general como para que agregar un feature no sea más que agregar el código que lo genere y simplemente se agregue la columna en el archivo final sin tener que recrear todo o recurrir a pandas.
+La base del programa es la carpeta `featurizers`, que es donde se encuentran los diferentes creadores de features. Esta armado de una forma lo suficientemente general como para que agregar un feature no sea más que agregar el código que lo genere y simplemente se agregue la columna en el archivo final sin tener que recrear todo.
 
 El programa carga en memoria los archivos de postulaciones, vistas, detalles de avisos y detalles de postulantes con lo cual podría llegar a tener un uso elevado de memoria.
 
-Para agregar un nuevo feature alcanza con crear una clase que herede de `Featurizer` e implemente los métodos `featurize` y `get_columns`. El método `featurize` va a ser llamado por cada par aviso-postulante y es donde la conversión sucede. Dentro de este método se tiene disponible información sobre las vistas, postulaciones, avisos y postulantes. El resultado del llamado debe ser una lista con los features devueltos, en un orden específico que debe mantenerse en cada llamado a `featurize`. El método `get_columns` devuelve una lista con el nombre de cada feature, en el mismo orden en que `featurize` devuelve los resultados.
+Para agregar un nuevo feature alcanza con crear una nueva clase que implemente el método `featurize`. Este método va a ser llamado una o más veces con un DataFrame con al menos dos columnas: `idaviso` e `idpostulante` y debe devolver otro DataFrame (o el mismo alterado) con las mismas columnas que tenía, más el/los features creados.
 
-Una vez creada la clase, se debe agregar una instancia de la misma en la constante `FEATURIZERS` dentro del archivo `preprocesar_set.py` y con esto ya deberían generarse los nuevos features junto con los anteriores. Esa constante define que featurizers se usan y por consiguiente que features van a quedar en el archivo final. Si el featurizer requiere parámetros iniciales pueden ser pasados al crear la instancia dentro de esta constante.
+La información sobre avisos, postulantes, vistas y postulaciones se puede obtener importando `dataset.modulo` reemplazando "modulo" por lo que se necesite (avisos, postulantes, vistas o postulaciones). Este import carga en memoria el dataframe deseado si es que el mismo no fue cargado previamente. Para obtener el dataframe alcanza con hacer `dataset.modulo.df`. Para el módulo `aviso` el dataframe se encuentra indexado por `idaviso`. En el caso de postulantes hay dos dataframes (`fiuba_1_postulantes_educacion` y `fiuba_2_postulantes_genero_edad`) que se pueden acceder via `.df_educacion` y via `.df_genero_edad`. Ambos se encuentran indexados por `idpostulante`. La recomendación es **no** modificar estos dataframes, sino hacer copias/utilizar resultados de vistas. Los datos sobre vistas y postulaciones están en su respectivos módulos; a diferencia de los anteriores, estos no se encuentran indexados.
+
+Una vez creado el módulo con la clase, se lo debe importar en `preprocesar_set.py` y luego agregar una instancia de la clase a la constante `FEATURIZERS`.
 
 El uso del programa es el siguiente:
 
@@ -22,8 +24,9 @@ Donde:
 
 El archivo de entrada *debe* tener una columna `idaviso` y una columna `idpostulante`. El resto de las columnas serán ignoradas durante el procesamiento pero no serán eliminadas; se agregarán al archivo final en el mismo orden en que estaban en el archivo original.
 
-Este programa requiere que exista en la carpeta un archivo `rutas.py` con las siguientes constantes definidas:
+Este programa requiere que exista en la misma carpeta en que se encuentra `preprocesar_set.py` un archivo llamado `rutas.py` con las siguientes constantes definidas:
 - `RUTA_AVISOS_DETALLE`: La ruta al archivo `fiuba_6_avisos_detalle.csv`.
-- `RUTA_POSTULANTES_DETALLE`: La ruta al archivo `postulantes.csv`, generado por un notebook dentro de la carpeta `viejo-paradigma`.
 - `RUTA_POSTULACIONES`: La ruta al archivo `fiuba_4_postulaciones.csv`.
 - `RUTA_VISTAS`: La ruta al archivo `fiuba_3_vistas.csv`
+- `RUTA_POSTULANTES_GENERO_EDAD`: La ruta al archivo `fiuba_2_postulantes_genero_edad.csv`
+- `RUTA_POSTULANTES_EDUCACION`: La ruta al archivo `fiuba_1_postulantes_educacion.csv`

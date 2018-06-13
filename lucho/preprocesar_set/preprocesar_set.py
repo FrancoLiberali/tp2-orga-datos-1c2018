@@ -8,17 +8,15 @@ para poder predecir mediante algoritmos de machine learning.
 import csv
 import sys
 
-import featurizer
-import features_descripciones
+from featurizers.informacion_basica import InformacionBasica
+from featurizers.cantidad_pv import CantidadesPV
+
+import pandas as pd
 
 FEATURIZERS = (
-    featurizer.InformacionBasicaPostulante(),
-    featurizer.CantidadVistasPostulacionesPostulante(),
-    featurizer.CantidadPVEnFeaturesDelAnuncio(),
-    features_descripciones.FeaturesDescripciones(),
+    InformacionBasica(),
+    CantidadesPV(),
 )
-
-COLUMNAS_CARACTERISTICAS = sum([f.get_columns() for f in FEATURIZERS], [])
 
 def preprocesar_set(ruta_entrada, ruta_salida, cantidad_lineas = 0):
     '''
@@ -31,9 +29,16 @@ def preprocesar_set(ruta_entrada, ruta_salida, cantidad_lineas = 0):
     indicará el progreso del preprocesamiento.
     '''
 
+    df = pd.read_csv(ruta_entrada)
+
+    for featurizer in FEATURIZERS:
+        df = featurizer.featurize(df)
+    
+    df.to_csv(ruta_salida, index=False)
+
+def old_style():
     linea_actual = 0
     porcentaje_anterior = 0
-
     with open(ruta_entrada) as entrada, open(ruta_salida, 'w') as salida:
         lector = csv.reader(entrada)
         escritor = csv.writer(salida)
@@ -46,7 +51,7 @@ def preprocesar_set(ruta_entrada, ruta_salida, cantidad_lineas = 0):
         escritor.writerow(encabezado + COLUMNAS_CARACTERISTICAS)
 
         for fila in lector:
-            id_aviso, id_postulante = fila[ID_AVISO], fila[ID_POSTULANTE]
+            id_aviso, id_postulante = int(fila[ID_AVISO]), fila[ID_POSTULANTE]
             caracteristicas = convertir_par_a_caracteristicas(id_aviso, id_postulante, FEATURIZERS)
 
             escritor.writerow(fila + caracteristicas)
@@ -68,8 +73,6 @@ def convertir_par_a_caracteristicas(id_aviso, id_postulante, featurizers):
     generadas por los featurizers.
     '''
     caracteristicas = []
-
-    iterable = [ (id_aviso, id_postulante, featurizer) for featurizer in featurizers ]
 
     for f in featurizers:
         caracteristicas += f.featurize(id_aviso, id_postulante)

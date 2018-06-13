@@ -3,24 +3,19 @@ Carga los detalles de los avisos laborales.
 Permite obtener la información de un aviso según su ID.
 '''
 
-import csv
+import pandas as pd
 
 from rutas import RUTA_AVISOS_DETALLE
-
 
 def cargar_avisos():
     '''
     Carga el archivo CSV de avisos.
     Devuelve un diccionario de la forma {id_aviso: {"detalle": "valor"}}
     '''
-
-    avisos_cargados = {}
-    with open(RUTA_AVISOS_DETALLE) as entrada:
-        lector = csv.DictReader(entrada)
-        for fila in lector:
-            avisos_cargados[fila['idaviso']] = fila
-
-    return avisos_cargados
+    print('Cargando avisos...', end='', flush=True)
+    df = pd.read_csv(RUTA_AVISOS_DETALLE)
+    print('OK')
+    return df.set_index('idaviso')
 
 def get(id_aviso):
     '''
@@ -28,7 +23,14 @@ def get(id_aviso):
     Si el aviso no existe lanza KeyError.
     '''
     
-    return avisos[id_aviso]
+    return df.loc[id_aviso].to_dict()
 
-avisos = cargar_avisos()
+def exists(id_aviso):
+    '''
+    Devuelve True si hay datos sobre el aviso.
+    '''
+
+    return id_aviso in df.index
+
+df = cargar_avisos()
 

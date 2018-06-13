@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-from stop_words import STOP_WORDS
+from featurizers.descripciones.stop_words import STOP_WORDS
 from html.parser import HTMLParser
 
 class MLStripper(HTMLParser):

@@ -6,16 +6,15 @@ postulante.
 - cantidad_postulaciones: A cuantos anuncios se postuló el postulante.
 '''
 
-import datasets.avisos as avisos
-import datasets.postulantes as postulantes
 import datasets.vistas as vistas
 import datasets.postulaciones as postulaciones
 import pandas as pd
 
 class CantidadesPV:
+    def get_name(self):
+        return 'Cantidades de vistas y postulaciones totales'
     
     def featurize(self, df):
-        print('Featurizing cantidades de postulaciones y vistas...')
         df = pd.merge(df, \
             vistas.df.groupby('idpostulante').agg('count').rename(columns={'idaviso': 'cantidad_vistas'}), \
             on='idpostulante', how='left')

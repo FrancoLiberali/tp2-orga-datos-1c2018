@@ -7,6 +7,7 @@ para poder predecir mediante algoritmos de machine learning.
 
 import csv
 import sys
+import os
 
 from featurizers.informacion_basica import InformacionBasica
 from featurizers.cantidad_pv import CantidadesPV
@@ -16,6 +17,9 @@ from featurizers.descripciones.descripciones import Descripciones
 import pandas as pd
 import numpy as np
 
+
+import gc
+
 FEATURIZERS = (
     InformacionBasica(),
     CantidadesPV(),
@@ -23,25 +27,66 @@ FEATURIZERS = (
     Descripciones()
 )
 
-def preprocesar_set(ruta_entrada, ruta_salida, cantidad_lineas = 0, cacho=10000):
+from historiador import log
+
+def preprocesar_set(ruta_entrada, ruta_salida, cacho=100000):
     '''
     Preprocesa un set de entrenamiento/test/predicción en formato CSV.
     Se requiere que el mismo tenga una columna idaviso y una columna
     idpostulante. El resto de las columnas serán dejadas intactas en 
     el resultado.
 
-    Si se indica un valor distinto de cero para cantidad_lineas, se
-    indicará el progreso del preprocesamiento.
+    El procesamiento se realizará en partes de tamaño "cacho".
     '''
 
+    log('Calculando cantidad de líneas...', end='', flush=True)
+    cantidad_lineas = -1 # Eliminar header
+    with open(ruta_entrada) as entrada:
+        for _ in entrada:
+            cantidad_lineas += 1
+    log('OK', no_mostrar_hora=True)
     
-    df = pd.read_csv(ruta_entrada)
+    lineas_actual = 0
 
-    for i, featurizer in enumerate(FEATURIZERS):
-        print('Featurizer', i)
-        df = featurizer.featurize(df)
+    while lineas_actual < cantidad_lineas:
+        lineas_actual = procesar_fragmento(ruta_entrada, lineas_actual, cacho, cantidad_lineas, FEATURIZERS, ruta_salida)
+        log('GC collected {} objects'.format(gc.collect()))
+        
+    log('Finalizado')
+
+def procesar_fragmento(ruta_entrada, lineas_actual, cacho, cantidad_lineas, featurizers, ruta_salida):
+    df = pd.read_csv(ruta_entrada, nrows=cacho, skiprows=range(1, lineas_actual+1))
+
+    log('Procesando líneas {} - {} de {}'.format(lineas_actual, lineas_actual + cacho, cantidad_lineas))
     
-    df.to_csv(ruta_salida, index=False)
+    for i, featurizer in enumerate(FEATURIZERS):
+        log('Ejecutando: ', featurizer.get_name(), '...', sep='', end='', flush=True)
+        df_f = featurizer.featurize(df[['idaviso', 'idpostulante']].copy())
+        df_f.to_csv(ruta_salida + '.{}.tmp'.format(i), index=False)
+        log('OK', no_mostrar_hora=True)
+        log('len(df_t) =', len(df_f))
+
+    log('Guardando fragmento...', end='', flush=True)
+    flush_featurizers(df, ruta_salida, lineas_actual, FEATURIZERS)
+    log('OK', no_mostrar_hora=True)
+    
+    return lineas_actual + cacho
+
+def flush_featurizers(df, ruta_salida, linea_actual, FEATURIZERS):
+    df = df.set_index(['idaviso', 'idpostulante'])
+    for i in range(len(FEATURIZERS)):
+        df = pd.merge(\
+            pd.read_csv(ruta_salida + '.{}.tmp'.format(i)).set_index(['idaviso', 'idpostulante']),\
+            df, right_index=True, left_index=True, how='right')
+    
+    df = df.reset_index()
+    if linea_actual == 0:
+        df.to_csv(ruta_salida, index=False)
+    else:
+        df.to_csv(ruta_salida, index=False, mode='a', header=False)
+    
+    for i in range(len(FEATURIZERS)):
+        os.remove(ruta_salida + '.{}.tmp'.format(i))
 
 
 def main():
@@ -50,10 +95,12 @@ def main():
 
     Uso:
 
-    ./preprocesar_set entrada.csv salida.csv [cantidad lineas entrada]
+    ./preprocesar_set entrada.csv salida.csv [tamaño del cacho]
 
-    Si se especifica la cantidad de líneas en el archivo de entrada
-    mostrará el progreso del procesamiento.
+    El tamaño del cacho indica cuantas líneas se toman al mismo tiempo para
+    procesar. Un tamaño más grande significa menos tiempo de procesamiento
+    pero más consumo de memoria. Por defecto se usa tamaño = 100.000, que 
+    funciona bien con 4GB de ram.
     '''
     if len(sys.argv) < 3 or len(sys.argv) > 4:
         print(main.__doc__, file=sys.stderr)

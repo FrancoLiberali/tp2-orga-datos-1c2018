@@ -30,7 +30,6 @@ from multiprocessing import Pool as ThreadPool, cpu_count, Lock
 
 import featurizers.descripciones.descripciones_helper as desc_helper
 
-import time
 
 class Descripciones:
 
@@ -61,7 +60,10 @@ class Descripciones:
         self.vistas_gb = vistas.df.groupby('idpostulante')
         self.postulaciones_gb = postulaciones.df.groupby('idpostulante')
         print('OK')
-        
+    
+    def get_name(self):
+        return 'Score basado en coinicidencia de descripciones'
+
     def generar_data_postulante(self, id_postulante):
         '''
         Devuelve un diccionario con las palabras que más vio el usuario
@@ -88,16 +90,41 @@ class Descripciones:
 
 
     def featurize(self, df):
-        print('Featurizing descripciones...')
-        print(' - Etapa 1/2: str-concat...', end='', flush=True)
+        '''
+        Esta función no está paralelizada ya que paralelizarla implicaba aumentar demasiado
+        el consumo de memoria.
+        '''
         df['desc_score'] = df['idpostulante'] + '-' + df['idaviso'].astype('str')
-        print('OK')
-        print(' - Etapa 2/2: featurize...', end='', flush=True)
-        #df = paralelizar_featurize(df, self)
-        # Desactivar MT llamando a la función parallel_featurize (que es la que ejecuta cada thread)
-        # en el thread principal
-        df = parallel_featurize((df, self))
-        print('OK')
+        def calcular_score(data):
+            if not isinstance(data, str):
+                return 0
+            id_postulante, id_aviso = data.split('-')
+            id_aviso = int(id_aviso)
+
+            if id_aviso not in self.df_descripciones:
+                return 0
+            
+            descripcion_aviso = self.df_descripciones[id_aviso]
+            score_descripcion = [0]
+            
+            def sumar_scores(id_aviso):
+                if id_aviso not in self.df_descripciones:
+                    return
+                
+                for palabra in self.df_descripciones[id_aviso]:
+                    if palabra in descripcion_aviso:
+                        score_descripcion[0] += 1
+                
+
+            if id_postulante in self.vistas_gb.groups:
+                self.vistas_gb.get_group(id_postulante)['idaviso'].map(sumar_scores)
+            if id_postulante in self.postulaciones_gb.groups:
+                self.postulaciones_gb.get_group(id_postulante)['idaviso'].map(sumar_scores)
+            
+            return score_descripcion[0]
+        
+        df['desc_score'] = df['desc_score'].map(calcular_score)
+
         return df
         
 
@@ -140,51 +167,5 @@ def paralelizar_remover_menos_frecuentes(series, lexico, factor):
     series_split = [(serie, lexico, factor) for i, serie in enumerate(np.array_split(series, cpu_count()))]
     with ThreadPool(cpu_count()) as pool:
         data = pd.concat(pool.map(parallel_map_remover, series_split))
-    
-    return data
-
-def parallel_featurize(data):
-    df, self = data
-    def calcular_score(data):
-        if not isinstance(data, str):
-            return 0
-        id_postulante, id_aviso = data.split('-')
-        id_aviso = int(id_aviso)
-
-        if id_aviso not in self.df_descripciones:
-            return 0
-        
-        descripcion_aviso = self.df_descripciones[id_aviso]
-        score_descripcion = [0]
-        
-        def sumar_scores(id_aviso):
-            if id_aviso not in self.df_descripciones:
-                return
-            
-            for palabra in self.df_descripciones[id_aviso]:
-                if palabra in descripcion_aviso:
-                    score_descripcion[0] += 1
-            
-
-        if id_postulante in self.vistas_gb.groups:
-            self.vistas_gb.get_group(id_postulante)['idaviso'].map(sumar_scores)
-        #if id_postulante in self.postulaciones_gb.groups:
-        #    self.postulaciones_gb.get_group(id_postulante)['idaviso'].map(sumar_scores)
-        
-        return score_descripcion[0]
-    
-    df['desc_score'] = df['desc_score'].map(calcular_score)
-
-    return df
-
-def init_pool_featurize(l):
-    global pp_lock
-    pp_lock = l
-
-def paralelizar_featurize(df, self):
-    lock = Lock()
-    df_split = [(df, self) for df in np.array_split(df, cpu_count())]
-    with ThreadPool(cpu_count(), initializer=init_pool_featurize, initargs=(lock,)) as pool:
-        data = pd.concat(pool.map(parallel_featurize, df_split))
     
     return data

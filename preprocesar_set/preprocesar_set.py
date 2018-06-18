@@ -13,6 +13,8 @@ from featurizers.informacion_basica import InformacionBasica
 from featurizers.cantidad_pv import CantidadesPV
 from featurizers.cantidades_por_feature import CantidadesPorFeature
 from featurizers.descripciones.descripciones import Descripciones
+from featurizers.vistas_por_aviso import VistasPorAviso
+from featurizers.avisos import Avisos
 
 import pandas as pd
 import numpy as np
@@ -24,7 +26,9 @@ FEATURIZERS = (
     InformacionBasica(),
     CantidadesPV(),
     CantidadesPorFeature(),
-    Descripciones()
+    Descripciones(),
+    Avisos(),
+    VistasPorAviso()
 )
 
 from historiador import log

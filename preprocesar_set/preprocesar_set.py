@@ -24,11 +24,11 @@ import gc
 
 FEATURIZERS = (
     InformacionBasica(),
+    VistasPorAviso(),
     CantidadesPV(),
     CantidadesPorFeature(),
     Descripciones(),
-    Avisos(),
-    VistasPorAviso()
+    Avisos()
 )
 
 from historiador import log
@@ -77,13 +77,16 @@ def procesar_fragmento(ruta_entrada, lineas_actual, cacho, cantidad_lineas, feat
     return lineas_actual + cacho
 
 def flush_featurizers(df, ruta_salida, linea_actual, FEATURIZERS):
-    df = df.set_index(['idaviso', 'idpostulante'])
+    df_d = df[['idaviso', 'idpostulante']]
     for i in range(len(FEATURIZERS)):
-        df = pd.merge(\
-            pd.read_csv(ruta_salida + '.{}.tmp'.format(i)).set_index(['idaviso', 'idpostulante']),\
-            df, right_index=True, left_index=True, how='right')
+        df_d = pd.merge(\
+            df_d, pd.read_csv(ruta_salida + '.{}.tmp'.format(i)),\
+            on=['idaviso', 'idpostulante'], how='left')
     
-    df = df.reset_index()
+    df = pd.merge(df_d, df, on=['idaviso', 'idpostulante'], how='left')
+
+    log('flush_featurizers: len(df) =', len(df), no_mostrar_hora=True)
+
     if linea_actual == 0:
         df.to_csv(ruta_salida, index=False)
     else:
@@ -112,7 +115,7 @@ def main():
     
     ruta_entrada = sys.argv[1]
     ruta_salida = sys.argv[2]
-    cantidad_lineas = 0
+    cantidad_lineas = 100000
     if len(sys.argv) == 4:
         cantidad_lineas = int(sys.argv[3])
     

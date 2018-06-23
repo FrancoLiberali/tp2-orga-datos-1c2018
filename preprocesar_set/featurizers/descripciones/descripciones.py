@@ -7,13 +7,6 @@ score_descripcion se define de la siguiente forma:
 - Se calcula el peso de cada palabra en el anuncio via TF-IDF.
 - Se suma el TF-IDF de cada palabra que el usuario vio (revisando
     en los anuncios que vio/se postuló anteriormente).
-- El score_descripcion se calcula como la suma del producto del TF-IDF de cada palabra
-    del anuncio por el resultado de cada palabra para el usuario.
-    score_descripcion = sum ( tfidf(Pi) * sum(tfidf(Pjk))), donde Pi = palabra i del anuncio,
-    Pjk = Palabra j del anuncio k visto por el postulante.
-
-distancia_descripciones se define de la siguiente forma:
-- Distancia de jaccard entre las descripciones, reducido en palabras.
 
 NOTA: Este módulo puede tomar un tiempo en inicializarse ya que debe preprocesar las descripciones
 '''

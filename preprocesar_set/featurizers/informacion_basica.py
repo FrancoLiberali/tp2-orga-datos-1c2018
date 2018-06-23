@@ -22,10 +22,7 @@ class InformacionBasica:
         df = pd.merge(df, postulantes.df_educacion, how='left', left_on='idpostulante', right_index=True)
         
         df['hay_informacion_basica'] = 1
-        df[df['sexo'].isna() | df['edad'].isna() | df['nivel_educativo'].isna()] = 0
-        df['sexo'] = df['sexo'].fillna(0)
-        df['edad'] = df['edad'].fillna(0)
-        df['nivel_educativo'] = df['nivel_educativo'].fillna(0)
+        df.loc[(df['sexo'].isna() | df['edad'].isna() | df['nivel_educativo'].isna()), ['sexo', 'edad', 'nivel_educativo', 'hay_informacion_basica']] = 0
 
         return df.rename(columns={'sexo': 'sexo_postulante', 'edad': 'edad_postulante', 
                 'nivel_educativo':'nivel_educativo_postulante'})

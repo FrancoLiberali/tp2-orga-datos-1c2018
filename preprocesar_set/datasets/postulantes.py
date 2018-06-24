@@ -78,11 +78,18 @@ def cargar_postulantes():
     
     df_educacion['nivel_educativo'] = df_educacion['nombre'] + '-' + df_educacion['estado']
     df_educacion['nivel_educativo'] = df_educacion['nivel_educativo'].map(lambda x: ESCALA_EDUCATIVA.get(x, 0))
+    df_educacion['terciario_completo'] = 0
+    df_educacion.loc[(df_educacion['nombre'] == 'Terciario/Técnico') & (df_educacion['estado'] == 'Graduado'), 'terciario_completo'] = 1
 
-    df_educacion = pd.merge(df_educacion[['idpostulante']].drop_duplicates(), \
-        pd.DataFrame(df_educacion.groupby('idpostulante')['nivel_educativo'].agg('max')), \
+    df_educacion_ = pd.merge(df_educacion[['idpostulante']].drop_duplicates(), \
+        pd.DataFrame(df_educacion.groupby('idpostulante')[['nivel_educativo']].agg('max')), \
+        left_on='idpostulante', right_index=True, how='left')
+
+    df_educacion = pd.merge(df_educacion_, pd.DataFrame(df_educacion.groupby('idpostulante')[['terciario_completo']].agg('max')),\
         left_on='idpostulante', right_index=True, how='left').set_index('idpostulante')
-    
+
+    df_educacion['terciario_completo'] = df_educacion['terciario_completo'].fillna(0)
+
     print('OK')
     return df_genero_edad, df_educacion
 

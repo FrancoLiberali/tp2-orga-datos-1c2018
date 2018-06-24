@@ -6,6 +6,7 @@ Genera tres features que refieren a la información básica del postulante.
 - sexo: Sexo del postulante -1 si es mujer, 1 si es hombre, 0 por defecto.
 - educacion: Nivel educativo del postulante, de 0 a 10 basado en 
     ESCALA_EDUCATIVA, por defecto .NIVEL_EDUCATIVO_MEDIO
+- terciario_completo: 1 si tiene terciario completo
 Si no se tiene la edad del postulante, devuelve EdadPostulante.EDAD_MEDIA.
 '''
 

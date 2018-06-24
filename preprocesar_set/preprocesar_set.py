@@ -24,11 +24,11 @@ import gc
 
 FEATURIZERS = (
     InformacionBasica(),
+    Avisos(),
     VistasPorAviso(),
     CantidadesPV(),
     CantidadesPorFeature(),
-    Descripciones(),
-    Avisos()
+    Descripciones()
 )
 
 from historiador import log

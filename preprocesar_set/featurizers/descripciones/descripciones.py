@@ -57,30 +57,6 @@ class Descripciones:
     def get_name(self):
         return 'Score basado en coinicidencia de descripciones'
 
-    def generar_data_postulante(self, id_postulante):
-        '''
-        Devuelve un diccionario con las palabras que más vio el usuario
-        y sus frecuencias.
-        '''
-        data_postulante = {}
-
-        
-        def obtener_palabras(id_aviso):
-            if id_aviso not in self.df_descripciones:
-                return id_aviso
-            
-            for palabra in self.df_descripciones[id_aviso]:
-                data_postulante[palabra] = data_postulante.get(palabra, 0) + 1
-            
-            return id_aviso
-
-        if id_postulante in self.vistas_gb.groups:
-            self.vistas_gb.get_group(id_postulante)['idaviso'].map(obtener_palabras)
-        if id_postulante in self.postulaciones_gb.groups:
-            self.postulaciones_gb.get_group(id_postulante)['idaviso'].map(obtener_palabras)
-        
-        return data_postulante
-
 
     def featurize(self, df):
         '''
@@ -88,7 +64,7 @@ class Descripciones:
         el consumo de memoria.
         '''
         df['desc_score'] = df['idpostulante'] + '-' + df['idaviso'].astype('str')
-        def calcular_score(data):
+        def calcular_score(data, groupby):
             if not isinstance(data, str):
                 return 0
             id_postulante, id_aviso = data.split('-')
@@ -109,16 +85,15 @@ class Descripciones:
                         score_descripcion[0] += 1
                 
 
-            if id_postulante in self.vistas_gb.groups:
-                self.vistas_gb.get_group(id_postulante)['idaviso'].map(sumar_scores)
-            if id_postulante in self.postulaciones_gb.groups:
-                self.postulaciones_gb.get_group(id_postulante)['idaviso'].map(sumar_scores)
+            if id_postulante in groupby.groups:
+                groupby.get_group(id_postulante)['idaviso'].map(sumar_scores)
             
             return score_descripcion[0]
         
-        df['desc_score'] = df['desc_score'].map(calcular_score)
+        df['desc_score_vistas'] = df['desc_score'].map(lambda x: calcular_score(x, self.vistas_gb))
+        df['desc_score'] = df['desc_score'].map(lambda x: calcular_score(x, self.postulaciones_gb))
 
-        return df
+        return df.rename(columns={'desc_score': 'desc_score_postulaciones'})
         
 
 

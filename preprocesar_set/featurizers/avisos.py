@@ -11,7 +11,6 @@ Genera features para el aviso según quienes vieron el mismo.
 
 import datasets.avisos as avisos
 import datasets.postulantes as postulantes
-import datasets.vistas as vistas
 import datasets.postulaciones as postulaciones
 
 import pandas as pd

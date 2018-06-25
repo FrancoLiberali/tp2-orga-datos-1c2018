@@ -72,7 +72,7 @@ def cargar_postulantes():
     
     df_genero_edad['sexo'] = df_genero_edad['sexo'].map(lambda x: {'MASC': 1, 'FEM': -1}.get(x, 0))
     df_genero_edad['fechanacimiento'] = df_genero_edad['fechanacimiento'].map(convertir_fecha_nacimiento_a_edad)
-    df_genero_edad = df_genero_edad.rename(columns={'fechanacimiento': 'edad'})
+    df_genero_edad = df_genero_edad.rename(columns={'fechanacimiento': 'edad'}).reset_index()
     
     df_educacion = pd.read_csv(RUTA_POSTULANTES_EDUCACION)
     

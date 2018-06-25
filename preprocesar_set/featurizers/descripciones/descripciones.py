@@ -50,8 +50,6 @@ class Descripciones:
 
         
         self.df_descripciones = {id_aviso: set(desc.split()) for id_aviso, desc in df.to_dict().items()}
-        self.vistas_gb = vistas.df.groupby('idpostulante')
-        self.postulaciones_gb = postulaciones.df.groupby('idpostulante')
         print('OK')
     
     def get_name(self):
@@ -90,8 +88,8 @@ class Descripciones:
             
             return score_descripcion[0]
         
-        df['desc_score_vistas'] = df['desc_score'].map(lambda x: calcular_score(x, self.vistas_gb))
-        df['desc_score'] = df['desc_score'].map(lambda x: calcular_score(x, self.postulaciones_gb))
+        df['desc_score_vistas'] = df['desc_score'].map(lambda x: calcular_score(x, vistas.df.groupby('idpostulante')))
+        df['desc_score'] = df['desc_score'].map(lambda x: calcular_score(x, postulaciones.df.groupby('idpostulante')))
 
         return df.rename(columns={'desc_score': 'desc_score_postulaciones'})
         
